@@ -1,82 +1,52 @@
 <template>
-  <div class="components-container" v-loading="loading">
+  <div class="components-container">
     <h1>测试富文本</h1>
-    <textarea id="mytextarea">Hello, World!</textarea>
+    <div class="test-warpper">
+      <kf-editor v-model="content" :disabled="disabled" />
+    </div>
+    <el-button @click="handleDisabled">{{ disabledText }}</el-button>
+    <div class="editor-content" v-html="content" />
+    <!-- <editor
+      api-key="wcpxteedfkc18ahk5flt122y14bzcj3hf7mrn5uj9r9ehxea"
+      language="zh_CN"
+      :plugins="[
+        'advlist link image imagetools quickbars lists hr pagebreak',
+        'searchreplace',
+        'table paste toc'
+      ]"
+    /> -->
   </div>
 </template>
 
 <script lang="ts">
-import { plugins } from '@/components/Tinymce/config'
 import { Component, Vue } from 'vue-property-decorator'
+import editor from '@tinymce/tinymce-vue'
 
 @Component({
-  name: 'TinymceDemo'
+  name: 'TinymceDemo',
+  components: {
+    editor,
+    KfEditor: () => import('../components/edit.vue')
+  }
 })
 export default class extends Vue {
-  private loading = false
+  private content = `<h1 style="text-align: center;">Welcome to the TinyMCE demo!</h1><p style="text-align: center; font-size: 15px;"><img title="TinyMCE Logo" src="https://img95.699pic.com/photo/40162/0358.gif_wh300.gif!/gifto/true" alt="TinyMCE Logo" width="110" height="97" /><ul>
+        <li>Our <a href="//www.tinymce.com/docs/">documentation</a> is a great resource for learning how to configure TinyMCE.</li><li>Have a specific question? Visit the <a href="https://community.tinymce.com/forum/">Community Forum</a>.</li><li>We also offer enterprise grade support as part of <a href="https://tinymce.com/pricing">TinyMCE premium subscriptions</a>.</li>
+      </ul>`
+  private disabled = false
 
-  private loadTinymce(url: string, callback: () => void) {
-    this.loading = true
-    try {
-      if (!window.tinymce) {
-        const script = document.createElement('script')
-        const body = document.querySelector('body')
-        script.type = 'text/javascript'
-        script.onload = () => {
-          callback && callback()
-          this.loading = false
-        }
-        script.src = url
-        if (body) {
-          body.appendChild(script)
-        }
-      } else {
-        callback && callback()
-      }
-    } catch (err) {
-      console.log(err)
-      this.loading = false
-    }
+  get disabledText(): string {
+    return this.disabled ? '启用' : '禁用'
   }
 
-  /** 插件列表
-   *  code
-   *
-   */
-  // 初始化initEdit
-  private initEdit() {
-    this.$nextTick(() => {
-      const w = window as any
-      w.tinymce.init({
-        selector: 'textarea#mytextarea',
-        language: 'zh_CN',
-        // width: 600,
-        // height: 300,
-        plugins: [
-          'advlist autolink link image imagetools lists hr pagebreak',
-          'searchreplace visualblocks visualchars',
-          'table paste toc'
-        ],
-        toolbar:
-          'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak  | image link',
-        statusbar: false, // 隐藏状态栏
-        paste_data_images: true // 粘贴图像
-      })
-    })
-  }
-
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  mounted() {
-    this.loadTinymce(
-      'https://cdn.tiny.cloud/1/wcpxteedfkc18ahk5flt122y14bzcj3hf7mrn5uj9r9ehxea/tinymce/5/tinymce.min.js',
-      this.initEdit
-    )
+  private handleDisabled() {
+    this.disabled = !this.disabled
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.editor-content {
-  margin-top: 20px;
+.test-wrapper {
+  height: 600px;
 }
 </style>
